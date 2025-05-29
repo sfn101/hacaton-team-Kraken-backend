@@ -1,6 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const sequelize = require("./config/database");
+
+// Register models with Sequelize
+require("./models/User");
+require("./models/Post");
 
 const postRoutes = require("./routes/post");
 const authRoutes = require("./routes/auth");
@@ -21,5 +26,11 @@ app.get("/", (req, res) => {
 app.use("/api/posts", postRoutes);
 app.use("/api/auth", authRoutes);
 
-// Start server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Sync database and start server
+sequelize.sync()
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("Database sync failed:", err);
+  });
